@@ -788,20 +788,24 @@ int main(const int argc, char** argv) {
   double vfov1 = 38.4; // Vertical FOV of camera 1 in degrees
   double hfov2 = 69.0; // Horizontal FOV of camera 2 in degrees
   double vfov2 = 55.0; // Vertical FOV of camera 2 in degrees*/
-  double blendVal = 0.5;
+  double blendValIncr = 0.01;
+  double blendVal = 0.0;
+  int direction = 1;
   while (true) {
     while (shouldLoop) {
       if (blendVal >= 1.0) {
-        blendVal = 0.0;
+        direction = -1;
+      } else if (blendVal <= 0.0) {
+        direction = 1;
       }
-      blendVal += 0.01;
+      blendVal += blendValIncr * direction;
       background_task_cap_main = std::async(std::launch::async, get_frame, buffersMain, devInfoMain);
       background_task_cap_main.wait();
       //YUYV422ToGRAY8(devInfoMain->outputFrame, 1280, 512, outputFrameGreyscale);
       convertYUYVtoRGB(devInfoMain->outputFrame, outputFrameRGB24, 1280, 512);
       //std::cout.write(reinterpret_cast<const char*>(outputFrameRGB24), 1280 * 512 * 3);
       cropImage(outputFrameRGB24, 1280, 512, outputFrameRGB24Left, outputFrameRGB24Right);
-      //RGB24ToGRAYSCALERGB24(outputFrameRGB24Left, 1280, 512, outputFrameRGB24Left);
+      RGB24ToGRAYSCALERGB24(outputFrameRGB24Left, 1280, 512, outputFrameRGB24Left);
       //cropGRAY8Image(outputFrameGreyscale, 1280, 512, outputFrameGreyscaleLeft, outputFrameGreyscaleRight);
       //writeToStdoutBinary(outputFrameGreyscale, 1280, 512);
       //cropGRAY8Image(const unsigned char* srcImage, int srcWidth, int srcHeight, unsigned char* leftImage, unsigned char* rightImage)
